@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
-VERSION="1.12.0"
+VERSION="1.14.1"
 
 declare -A plugins
 plugins=(
-    ["aws"]="1.24.0"
-    ["gcp"]="2.8.0"
+    ["docker"]="1.5.0"
+    ["aws"]="1.29.0"
+    ["gcp"]="2.13.0"
     ["random"]="1.5.0"
     ["kubernetes"]="1.5.6"
 )
