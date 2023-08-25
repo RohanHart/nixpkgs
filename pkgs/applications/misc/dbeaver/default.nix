@@ -26,6 +26,7 @@ in
 mavenJdk17.buildMavenPackage rec {
   pname = "dbeaver";
   version = "23.1.5"; # When updating also update mvnHash
+  # see https://p2.dev.dbeaver.com/eclipse-repo/plugins/ for latest dependency versions
 
   src = fetchFromGitHub {
     owner = "dbeaver";
@@ -68,6 +69,8 @@ mavenJdk17.buildMavenPackage rec {
       categories = [ "Development" ];
     })
   ];
+
+  patches = [ ./pin-dependencies.patch ];
 
   installPhase =
     let
