@@ -13,7 +13,7 @@
   icu70,
   librsvg,
   gdk-pixbuf,
-  libsoup,
+  libsoup_3,
   glib-networking,
   gsettings-desktop-schemas,
   graphicsmagick_q16,
@@ -155,7 +155,7 @@ stdenv.mkDerivation (finalAttrs: {
     libkrb5
     libpulseaudio
     librsvg
-    libsoup_2_4
+    libsoup_3
     libtiff
     libusb1
     libva
@@ -220,7 +220,6 @@ stdenv.mkDerivation (finalAttrs: {
         --set-default FONTCONFIG_PATH "${fontconfig.out}/etc/fonts" \
         --set WEBKIT_DISABLE_DMABUF_RENDERER 1 \
         --set GSETTINGS_SCHEMA_DIR "$out/share/glib-2.0/schemas" \
-        --set SOUP_TLD_PATH "$out/share/publicsuffix/public_suffix_list.dat"
 
       runHook postInstall
   '';
