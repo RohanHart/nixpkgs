@@ -180,6 +180,13 @@ stdenv.mkDerivation (finalAttrs: {
     mv $out/usr/share $out/share
     runHook postUnpack
   '';
+
+  preFixup = ''
+    gappsWrapperArgs+=(
+      --prefix PATH : "$out/lib/dcv":"${lib.makeBinPath [custom_lsb_release]}" \
+    )
+  '';
+
   installPhase = ''
       runHook preInstall
       mkdir -p $out/bin $out/lib
@@ -211,15 +218,6 @@ stdenv.mkDerivation (finalAttrs: {
 
       mkdir -p $out/share/publicsuffix
       cp ${publicsuffixList}/share/publicsuffix/public_suffix_list.dat $out/share/publicsuffix/
-
-      # Wrap it in its new location
-      wrapProgram $out/bin/workspacesclient \
-        --prefix PATH : "$out/lib/dcv":"${lib.makeBinPath [custom_lsb_release]}" \
-        --prefix LD_LIBRARY_PATH : "$out/lib/dcv":"${lib.makeLibraryPath finalAttrs.buildInputs}" \
-        --set-default FONTCONFIG_FILE "${fontconfig.out}/etc/fonts/fonts.conf" \
-        --set-default FONTCONFIG_PATH "${fontconfig.out}/etc/fonts" \
-        --set WEBKIT_DISABLE_DMABUF_RENDERER 1 \
-        --set GSETTINGS_SCHEMA_DIR "$out/share/glib-2.0/schemas" \
 
       runHook postInstall
   '';
