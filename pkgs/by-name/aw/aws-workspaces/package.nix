@@ -183,19 +183,19 @@ stdenv.mkDerivation (finalAttrs: {
 
   preFixup = ''
     gappsWrapperArgs+=(
-      --prefix PATH : "$out/lib/dcv":"${lib.makeBinPath [custom_lsb_release]}" \
+      --prefix PATH : "$out/libexec/dcv":"${lib.makeBinPath [custom_lsb_release]}" \
     )
   '';
 
   installPhase = ''
       runHook preInstall
-      mkdir -p $out/bin $out/lib
-      mv $out/usr/lib/x86_64-linux-gnu/workspacesclient/dcv $out/lib/
+      mkdir -p $out/bin $out/libexec
+      mv $out/usr/lib/x86_64-linux-gnu/workspacesclient/dcv $out/libexec/
 
       rm -rf $out/opt
 
       echo $src >> "$out/share/workspace_dependencies.pin"
-      rm $out/lib/dcv/libgio-2.0.so.0
+      rm $out/libexec/dcv/libgio-2.0.so.0
 
       mkdir -p $out/share/glib-2.0/schemas
       if [ -d $out/usr/share/glib-2.0/schemas ]; then
