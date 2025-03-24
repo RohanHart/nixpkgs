@@ -177,7 +177,6 @@ stdenv.mkDerivation (finalAttrs: {
   unpackPhase = ''
     runHook preUnpack
     ${dpkg}/bin/dpkg -x $src $out
-    mv $out/usr/share $out/share
     runHook postUnpack
   '';
 
@@ -191,25 +190,12 @@ stdenv.mkDerivation (finalAttrs: {
       runHook preInstall
       mkdir -p $out/bin $out/libexec
       mv $out/usr/lib/x86_64-linux-gnu/workspacesclient/dcv $out/libexec/
-
+      mv $out/usr/share $out/share
       rm -rf $out/opt
 
       echo $src >> "$out/share/workspace_dependencies.pin"
-      rm $out/libexec/dcv/libgio-2.0.so.0
 
-      mkdir -p $out/share/glib-2.0/schemas
-      if [ -d $out/usr/share/glib-2.0/schemas ]; then
-        cp -r $out/usr/share/glib-2.0/schemas/* $out/share/glib-2.0/schemas/
-      else
-        echo "Creating dummy GSettings schema..."
-        cat > $out/share/glib-2.0/schemas/com.amazon.workspacesclient.proxy.gschema.xml <<EOF
-    <?xml version="1.0" encoding="UTF-8"?>
-    <schemalist>
-      <schema id="com.amazon.workspacesclient.proxy" path="/com/amazon/workspacesclient/proxy/">
-      </schema>
-    </schemalist>
-    EOF
-      fi
+      rm $out/libexec/dcv/libgio-2.0.so.0
 
       glib-compile-schemas $out/share/glib-2.0/schemas/
 
