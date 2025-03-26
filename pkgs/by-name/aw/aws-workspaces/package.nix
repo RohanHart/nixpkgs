@@ -1,6 +1,8 @@
 {
   stdenv,
   lib,
+  callPackage,
+  buildFHSEnv,
   libpsl,
   dpkg,
   fetchurl,
@@ -36,62 +38,17 @@
   libfido2,
   webkitgtk_4_1,
   copyDesktopItems,
-  wrapGAppsHook4,
   atk,
   fetchpatch,
   glib,
   sssd,
   gtk3,
   writeShellApplication,
-}: let
+}:
+let
+  aws-workspaces = callPackage ./aws-workspaces.nix { };
   # To remove when https://github.com/NixOS/nixpkgs/pull/345659 has landed
-  custom_jbigkit = jbigkit.overrideAttrs (oldAttrs: {
-    patches =
-      oldAttrs.patches
-      ++ [
-        (fetchpatch {
-          url = "https://gitlab.archlinux.org/archlinux/packaging/packages/jbigkit/-/raw/main/jbigkit-2.1-shared_lib.patch";
-          hash = "sha256-+efeeKg3FJ/TjSOj58kD+DwnaCm3zhGzKLfUes/d5rg=";
-        })
-        (fetchpatch {
-          url = "https://gitlab.archlinux.org/archlinux/packaging/packages/jbigkit/-/raw/main/jbigkit-2.1-ldflags.patch";
-          hash = "sha256-ik3NifyuhDHnIMTrNLAKInPgu2F5u6Gvk9daqrn8ZhY=";
-        })
-        # Archlinux patch: update coverity
-        (fetchpatch {
-          url = "https://gitlab.archlinux.org/archlinux/packaging/packages/jbigkit/-/raw/main/jbigkit-2.1-coverity.patch";
-          hash = "sha256-APm9A2f4sMufuY3cnL9HOcSCa9ov3pyzgQTTKLd49/E=";
-        })
-        # Archlinux patch: fix build warnings
-        (fetchpatch {
-          url = "https://gitlab.archlinux.org/archlinux/packaging/packages/jbigkit/-/raw/main/jbigkit-2.1-build_warnings.patch";
-          hash = "sha256-lDEJ1bvZ+zR7K4CiTq+aXJ8PGjILE3W13kznLLlGOOg=";
-        })
-      ];
-
-    makeFlags = [
-      "AR=${lib.getBin stdenv.cc.bintools.bintools}/bin/${stdenv.cc.targetPrefix}ar"
-      "CC=${stdenv.cc}/bin/${stdenv.cc.targetPrefix}cc"
-      "DESTDIR=${placeholder "out"}"
-      "RANLIB=${lib.getBin stdenv.cc.bintools.bintools}/bin/${stdenv.cc.targetPrefix}ranlib"
-    ];
-
-    installPhase = ''
-      runHook preInstall
-
-      install -vDm 644 libjbig/*.h -t "$out/include/"
-      install -vDm 755 pbmtools/{jbgtopbm{,85},pbmtojbg{,85}} -t "$out/bin/"
-      install -vDm 644 pbmtools/*.1* -t "$out/share/man/man1/"
-
-      install -vDm 755 libjbig/*.so.* -t "$out/lib/"
-      for lib in libjbig.so libjbig85.so; do
-        ln -sv "$lib.${oldAttrs.version}" "$out/lib/$lib"
-        ln -sv "$out/lib/$lib.${oldAttrs.version}" "$out/lib/$lib.0"
-      done
-
-      runHook postInstall
-    '';
-  });
+  custom_jbigkit = callPackage ./jbigkit.nix { };
 
   # Source: https://github.com/jthomaschewski/pkgbuilds/pull/3
   # Credits to https://github.com/rwolfson
@@ -112,105 +69,56 @@
     '';
   };
 in
-stdenv.mkDerivation (finalAttrs: {
+buildFHSEnv {
   pname = "aws-workspaces";
-  version = "2024.8.5191";
+  inherit (aws-workspaces) version;
 
-  src = fetchurl {
-    urls = [
-      # Check new version at https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu/dists/jammy/main/binary-amd64/Packages
-      "https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu/dists/jammy/main/binary-amd64/workspacesclient_${finalAttrs.version}_amd64.deb"
-      "https://d3nt0h4h6pmmc4.cloudfront.net/new_workspacesclient_jammy_amd64.deb"
+  runScript = "${aws-workspaces}/bin/workspacesclient";
+
+  includeClosures = true;
+
+  targetPkgs =
+    pkgs:
+    with pkgs;
+    [
+      aws-workspaces
+      custom_lsb_release
+      (lib.getLib stdenv.cc.cc)
+      atk
+      cairo
+      curl
+      custom_jbigkit
+      ffmpeg_6.lib
+      gdk-pixbuf
+      glib
+      glib-networking
+      graphicsmagick_q16
+      gsettings-desktop-schemas
+      gtk3
+      hiredis
+      icu70
+      libfido2
+      libkrb5
+      libpulseaudio
+      librsvg
+      libsoup_3
+      libtiff
+      libusb1
+      libva
+      libpsl
+      libvdpau
+      lmdb
+      lttng-ust
+      openssl
+      pango
+      publicsuffixList
+      pcsclite
+      protobufc
+      sssd
+      webkitgtk_4_1
+      xorg.libxcb
+      zlib
     ];
-    hash = "sha256-BDxMycVgWciJZe8CtElXaWVnqYDQO5NmawK10GvP2+k=";
-  };
 
-  nativeBuildInputs = [
-    dpkg
-    autoPatchelfHook
-    copyDesktopItems
-    wrapGAppsHook4
-    glib
-  ];
-
-  # Crashes at startup when stripping:
-  # "Failed to create CoreCLR, HRESULT: 0x80004005"
-  dontStrip = true;
-
-  buildInputs = [
-    (lib.getLib stdenv.cc.cc)
-    atk
-    cairo
-    curl
-    custom_jbigkit
-    ffmpeg_6.lib
-    gdk-pixbuf
-    glib
-    glib-networking
-    graphicsmagick_q16
-    gsettings-desktop-schemas
-    gtk3
-    hiredis
-    icu70
-    libfido2
-    libkrb5
-    libpulseaudio
-    librsvg
-    libsoup_3
-    libtiff
-    libusb1
-    libva
-    libpsl
-    libvdpau
-    lmdb
-    lttng-ust
-    openssl
-    pango
-    publicsuffixList
-    pcsclite
-    protobufc
-    sssd
-    webkitgtk_4_1
-    xorg.libxcb
-    zlib
-  ];
-
-  preFixup = ''
-    gappsWrapperArgs+=(
-      --prefix PATH : "$out/libexec/dcv":"${lib.makeBinPath [custom_lsb_release]}" \
-    )
-  '';
-
-  installPhase = ''
-      runHook preInstall
-
-      mkdir -p $out/libexec
-      cp -R usr/* $out/
-      mv $out/lib/x86_64-linux-gnu/workspacesclient/dcv $out/libexec/
-      rm -rf $out/opt
-
-      echo $src >> "$out/share/workspace_dependencies.pin"
-
-      rm $out/libexec/dcv/libgio-2.0.so.0
-
-      glib-compile-schemas $out/share/glib-2.0/schemas/
-
-      mkdir -p $out/share/publicsuffix
-      cp ${publicsuffixList}/share/publicsuffix/public_suffix_list.dat $out/share/publicsuffix/
-
-      runHook postInstall
-  '';
-
-  meta = {
-    description = "Client for Amazon WorkSpaces, a managed, secure Desktop-as-a-Service (DaaS) solution";
-    homepage = "https://clients.amazonworkspaces.com";
-    license = lib.licenses.unfree;
-    sourceProvenance = with lib.sourceTypes; [binaryNativeCode];
-    mainProgram = "workspacesclient";
-    maintainers = with lib.maintainers; [
-      mausch
-      dylanmtaylor
-    ];
-    platforms = ["x86_64-linux"]; # TODO Mac support
-  };
-})
+  meta = aws-workspaces.meta;
+}
