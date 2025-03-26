@@ -126,6 +126,7 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   nativeBuildInputs = [
+    dpkg
     autoPatchelfHook
     copyDesktopItems
     wrapGAppsHook4
@@ -174,12 +175,6 @@ stdenv.mkDerivation (finalAttrs: {
     zlib
   ];
 
-  unpackPhase = ''
-    runHook preUnpack
-    ${dpkg}/bin/dpkg -x $src $out
-    runHook postUnpack
-  '';
-
   preFixup = ''
     gappsWrapperArgs+=(
       --prefix PATH : "$out/libexec/dcv":"${lib.makeBinPath [custom_lsb_release]}" \
@@ -188,9 +183,10 @@ stdenv.mkDerivation (finalAttrs: {
 
   installPhase = ''
       runHook preInstall
-      mkdir -p $out/bin $out/libexec
-      mv $out/usr/lib/x86_64-linux-gnu/workspacesclient/dcv $out/libexec/
-      mv $out/usr/share $out/share
+
+      mkdir -p $out/libexec
+      cp -R usr/* $out/
+      mv $out/lib/x86_64-linux-gnu/workspacesclient/dcv $out/libexec/
       rm -rf $out/opt
 
       echo $src >> "$out/share/workspace_dependencies.pin"
@@ -198,9 +194,6 @@ stdenv.mkDerivation (finalAttrs: {
       rm $out/libexec/dcv/libgio-2.0.so.0
 
       glib-compile-schemas $out/share/glib-2.0/schemas/
-
-      # Move the binary FIRST
-      mv $out/usr/bin/workspacesclient $out/bin/workspacesclient
 
       mkdir -p $out/share/publicsuffix
       cp ${publicsuffixList}/share/publicsuffix/public_suffix_list.dat $out/share/publicsuffix/
