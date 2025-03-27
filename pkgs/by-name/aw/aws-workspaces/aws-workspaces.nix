@@ -4,7 +4,7 @@
   libpsl,
   dpkg,
   fetchurl,
-  autoPatchelfHook,
+  wrapGAppsHook4,
   curl,
   libkrb5,
   lttng-ust,
@@ -60,6 +60,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   nativeBuildInputs = [
     dpkg
+    wrapGAppsHook4
   ];
 
   installPhase = ''
