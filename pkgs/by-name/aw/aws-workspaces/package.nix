@@ -73,7 +73,7 @@ buildFHSEnv {
   pname = "aws-workspaces";
   inherit (aws-workspaces) version;
 
-  runScript = "${aws-workspaces}/bin/workspacesclient";
+  runScript = "env GIO_EXTRA_MODULES=/usr/lib/gio/modules:$GIO_EXTRA_MODULES ${aws-workspaces}/bin/workspacesclient";
 
   includeClosures = true;
 
