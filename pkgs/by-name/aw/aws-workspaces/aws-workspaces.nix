@@ -72,7 +72,11 @@ stdenv.mkDerivation (finalAttrs: {
       echo $src >> "$out/share/workspace_dependencies.pin"
 
       rm $out/lib/x86_64-linux-gnu/workspacesclient/dcv/libgio-2.0.so.0
-      ln -s $out/lib/x86_64-linux-gnu/workspacesclient/dcv/* $out/lib/
+
+      # dcvclient sets up the environment wrong. Instead wrap the binary directly, preferring native libraries
+      mv $out/lib/x86_64-linux-gnu/workspacesclient/dcv/dcvclientbin $out/lib/x86_64-linux-gnu/workspacesclient/dcv/dcvclient
+      wrapProgram $out/lib/x86_64-linux-gnu/workspacesclient/dcv/dcvclient \
+        --suffix LD_LIBRARY_PATH : /usr/lib/x86_64-linux-gnu/workspacesclient/dcv
 
       runHook postInstall
   '';
