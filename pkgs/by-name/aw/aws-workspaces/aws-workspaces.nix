@@ -80,6 +80,8 @@ stdenv.mkDerivation (finalAttrs: {
         --set DCV_DATA_DIR /usr/share \
         --set DCV_SASL_PLUGIN_DIR /usr/lib/x86_64-linux-gnu/workspacesclient/dcv/sasl2 \
 
+      mkdir -p $out/lib/gio/modules
+      ln -s $out/lib/x86_64-linux-gnu/workspacesclient/dcv/gio/modules/* $out/lib/gio/modules/
 
       runHook postInstall
   '';
