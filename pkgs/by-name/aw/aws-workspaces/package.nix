@@ -120,5 +120,10 @@ buildFHSEnv {
       zlib
     ];
 
+  # provide certificates where Debian-style OpenSSL can find them
+  extraBwrapArgs = [
+    "--symlink /etc/ssl/certs/ca-certificates.crt /etc/ssl/cert.pem"
+  ];
+
   meta = aws-workspaces.meta;
 }
