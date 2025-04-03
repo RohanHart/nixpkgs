@@ -76,7 +76,10 @@ stdenv.mkDerivation (finalAttrs: {
       # dcvclient sets up the environment wrong. Instead wrap the binary directly, preferring native libraries
       mv $out/lib/x86_64-linux-gnu/workspacesclient/dcv/dcvclientbin $out/lib/x86_64-linux-gnu/workspacesclient/dcv/dcvclient
       wrapProgram $out/lib/x86_64-linux-gnu/workspacesclient/dcv/dcvclient \
-        --suffix LD_LIBRARY_PATH : /usr/lib/x86_64-linux-gnu/workspacesclient/dcv
+        --prefix LD_LIBRARY_PATH : /usr/lib/x86_64-linux-gnu/workspacesclient/dcv \
+        --set DCV_DATA_DIR /usr/share \
+        --set DCV_SASL_PLUGIN_DIR /usr/lib/x86_64-linux-gnu/workspacesclient/dcv/sasl2 \
+
 
       runHook postInstall
   '';
