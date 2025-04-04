@@ -4,7 +4,7 @@
   libpsl,
   dpkg,
   fetchurl,
-  wrapGAppsHook4,
+  makeWrapper,
   curl,
   libkrb5,
   lttng-ust,
@@ -44,6 +44,9 @@
   writeShellApplication,
 }:
 
+let
+  dcv-path = "lib/x86_64-linux-gnu/workspacesclient/dcv";
+in
 stdenv.mkDerivation (finalAttrs: {
   pname = "workspacesclient";
 
@@ -60,7 +63,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   nativeBuildInputs = [
     dpkg
-    wrapGAppsHook4
+    makeWrapper
   ];
 
   installPhase = ''
@@ -74,14 +77,11 @@ stdenv.mkDerivation (finalAttrs: {
       rm $out/lib/x86_64-linux-gnu/workspacesclient/dcv/libgio-2.0.so.0
 
       # dcvclient sets up the environment wrong. Instead wrap the binary directly, preferring native libraries
-      mv $out/lib/x86_64-linux-gnu/workspacesclient/dcv/dcvclientbin $out/lib/x86_64-linux-gnu/workspacesclient/dcv/dcvclient
-      wrapProgram $out/lib/x86_64-linux-gnu/workspacesclient/dcv/dcvclient \
-        --prefix LD_LIBRARY_PATH : /usr/lib/x86_64-linux-gnu/workspacesclient/dcv \
-        --set DCV_DATA_DIR /usr/share \
-        --set DCV_SASL_PLUGIN_DIR /usr/lib/x86_64-linux-gnu/workspacesclient/dcv/sasl2 \
-
-      mkdir -p $out/lib/gio/modules
-      ln -s $out/lib/x86_64-linux-gnu/workspacesclient/dcv/gio/modules/* $out/lib/gio/modules/
+      mv $out/${dcv-path}/dcvclientbin $out/${dcv-path}/dcvclient
+      wrapProgram $out/${dcv-path}/dcvclient \
+        --suffix LD_LIBRARY_PATH : $out/${dcv-path} \
+        --suffix GIO_EXTRA_MODULES : ${dcv-path}/gio/modules \
+        --set DCV_SASL_PLUGIN_DIR $out/${dcv-path}/sasl2 \
 
       runHook postInstall
   '';
