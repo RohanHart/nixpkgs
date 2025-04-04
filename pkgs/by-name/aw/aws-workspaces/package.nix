@@ -2,48 +2,15 @@
   stdenv,
   lib,
   callPackage,
-  buildFHSEnv,
-  libpsl,
-  dpkg,
-  fetchurl,
-  autoPatchelfHook,
-  curl,
-  libkrb5,
-  lttng-ust,
-  libpulseaudio,
-  openssl,
-  icu70,
-  librsvg,
-  gdk-pixbuf,
-  libsoup_3,
-  glib-networking,
-  gsettings-desktop-schemas,
-  graphicsmagick_q16,
-  libva,
-  libusb1,
-  hiredis,
-  pcsclite,
-  jbigkit,
-  libvdpau,
-  libtiff,
-  ffmpeg_6,
-  lmdb,
-  protobufc,
-  zlib,
-  cairo,
-  fontconfig,
-  pango,
-  publicsuffixList ? (import <nixpkgs> { }).publicsuffix-list,
-  xorg,
-  libfido2,
-  webkitgtk_4_1,
-  copyDesktopItems,
-  atk,
-  fetchpatch,
-  glib,
-  sssd,
-  gtk3,
   writeShellApplication,
+  buildFHSEnv,
+  webkitgtk_4_1,
+  gtk3,
+  pango,
+  atk,
+  cairo,
+  gdk-pixbuf,
+  glib-networking,
 }:
 let
   workspacesclient = callPackage ./workspacesclient.nix { };
@@ -83,41 +50,14 @@ buildFHSEnv {
     pkgs: with pkgs; [
       workspacesclient
       custom_lsb_release
-      (lib.getLib stdenv.cc.cc)
+      webkitgtk_4_1
+      gtk3
+      pango
       atk
       cairo
-      curl
-      custom_jbigkit
-      ffmpeg_6.lib
       gdk-pixbuf
-      glib
       glib-networking
-      graphicsmagick_q16
-      gsettings-desktop-schemas
-      gtk3
-      hiredis
-      icu70
-      libfido2
-      libkrb5
-      libpulseaudio
-      librsvg
-      libsoup_3
-      libtiff
-      libusb1
-      libva
-      libpsl
-      libvdpau
-      lmdb
-      lttng-ust
-      openssl
-      pango
-      publicsuffixList
-      pcsclite
-      protobufc
-      sssd
-      webkitgtk_4_1
-      xorg.libxcb
-      zlib
+      custom_jbigkit
     ];
 
   # provide certificates where Debian-style OpenSSL can find them
