@@ -73,7 +73,8 @@ stdenv.mkDerivation (finalAttrs: {
 
       echo $src >> "$out/share/workspace_dependencies.pin"
 
-      rm $out/lib/x86_64-linux-gnu/workspacesclient/dcv/libgio-2.0.so.0
+      # remove all libraries provided by the FHS
+      find $out/${dcv-path} -name lib\* ! -name libdcv\* ! -name libgioopenssl\* | xargs rm
 
       # dcvclient sets up the environment wrong. Instead wrap the binary directly, preferring native libraries
       mv $out/${dcv-path}/dcvclientbin $out/${dcv-path}/dcvclient
