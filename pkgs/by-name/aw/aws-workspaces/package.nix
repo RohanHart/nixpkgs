@@ -68,9 +68,11 @@ let
       echo "Release: 22.04"
     '';
   };
+  pname = "aws-workspaces";
+
 in
 buildFHSEnv {
-  pname = "aws-workspaces";
+  inherit pname;
   inherit (aws-workspaces) version;
 
   runScript = "env GIO_EXTRA_MODULES=/usr/lib/gio/modules:$GIO_EXTRA_MODULES ${aws-workspaces}/bin/workspacesclient";
@@ -122,6 +124,11 @@ buildFHSEnv {
   extraBwrapArgs = [
     "--symlink /etc/ssl/certs/ca-certificates.crt /etc/ssl/cert.pem"
   ];
+
+  # expected executable don't match the name of this package
+  extraInstallCommands = ''
+    mv $out/bin/${pname} $out/bin/workspacesclient
+  '';
 
   meta = aws-workspaces.meta;
 }
