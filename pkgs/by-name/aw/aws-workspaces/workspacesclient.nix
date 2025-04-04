@@ -38,7 +38,7 @@ stdenv.mkDerivation (finalAttrs: {
     # remove all libraries provided by the FHS
     find $out/${dcv-path} -name lib\* ! -name libdcv\* ! -name libgioopenssl\* | xargs rm
 
-    # dcvclient sets up the environment wrong. Instead wrap the binary directly, preferring native libraries
+    # dcvclient sets up the environment wrong. Instead wrap the binary directly with the environment variables not already provided by the FHS
     mv $out/${dcv-path}/dcvclientbin $out/${dcv-path}/dcvclient
     wrapProgram $out/${dcv-path}/dcvclient \
       --suffix LD_LIBRARY_PATH : $out/${dcv-path} \
