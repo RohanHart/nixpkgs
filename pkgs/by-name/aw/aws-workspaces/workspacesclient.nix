@@ -28,24 +28,24 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   installPhase = ''
-      runHook preInstall
+    runHook preInstall
 
-      mkdir $out
-      cp -r usr/* $out
+    mkdir $out
+    cp -r usr/* $out
 
-      echo $src >> "$out/share/workspace_dependencies.pin"
+    echo $src >> "$out/share/workspace_dependencies.pin"
 
-      # remove all libraries provided by the FHS
-      find $out/${dcv-path} -name lib\* ! -name libdcv\* ! -name libgioopenssl\* | xargs rm
+    # remove all libraries provided by the FHS
+    find $out/${dcv-path} -name lib\* ! -name libdcv\* ! -name libgioopenssl\* | xargs rm
 
-      # dcvclient sets up the environment wrong. Instead wrap the binary directly, preferring native libraries
-      mv $out/${dcv-path}/dcvclientbin $out/${dcv-path}/dcvclient
-      wrapProgram $out/${dcv-path}/dcvclient \
-        --suffix LD_LIBRARY_PATH : $out/${dcv-path} \
-        --suffix GIO_EXTRA_MODULES : ${dcv-path}/gio/modules \
-        --set DCV_SASL_PLUGIN_DIR $out/${dcv-path}/sasl2 \
+    # dcvclient sets up the environment wrong. Instead wrap the binary directly, preferring native libraries
+    mv $out/${dcv-path}/dcvclientbin $out/${dcv-path}/dcvclient
+    wrapProgram $out/${dcv-path}/dcvclient \
+      --suffix LD_LIBRARY_PATH : $out/${dcv-path} \
+      --suffix GIO_EXTRA_MODULES : ${dcv-path}/gio/modules \
+      --set DCV_SASL_PLUGIN_DIR $out/${dcv-path}/sasl2 \
 
-      runHook postInstall
+    runHook postInstall
   '';
 
   meta = {
