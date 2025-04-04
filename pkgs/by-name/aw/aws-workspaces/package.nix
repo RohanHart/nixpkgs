@@ -11,6 +11,8 @@
   cairo,
   gdk-pixbuf,
   glib-networking,
+  protobufc,
+  cyrus_sasl,
 }:
 let
   workspacesclient = callPackage ./workspacesclient.nix { };
@@ -57,6 +59,8 @@ buildFHSEnv {
       cairo
       gdk-pixbuf
       glib-networking
+      protobufc
+      cyrus_sasl
       custom_jbigkit
     ];
 
