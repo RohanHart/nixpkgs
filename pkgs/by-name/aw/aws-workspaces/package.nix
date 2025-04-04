@@ -33,7 +33,7 @@
   cairo,
   fontconfig,
   pango,
-  publicsuffixList ? (import <nixpkgs> {}).publicsuffix-list,
+  publicsuffixList ? (import <nixpkgs> { }).publicsuffix-list,
   xorg,
   libfido2,
   webkitgtk_4_1,
@@ -46,7 +46,7 @@
   writeShellApplication,
 }:
 let
-  aws-workspaces = callPackage ./aws-workspaces.nix { };
+  workspacesclient = callPackage ./workspacesclient.nix { };
   # To remove when https://github.com/NixOS/nixpkgs/pull/345659 has landed
   custom_jbigkit = callPackage ./jbigkit.nix { };
 
@@ -73,17 +73,15 @@ let
 in
 buildFHSEnv {
   inherit pname;
-  inherit (aws-workspaces) version;
+  inherit (workspacesclient) version;
 
-  runScript = "env GIO_EXTRA_MODULES=/usr/lib/gio/modules:$GIO_EXTRA_MODULES ${aws-workspaces}/bin/workspacesclient";
+  runScript = "env GIO_EXTRA_MODULES=/usr/lib/gio/modules:$GIO_EXTRA_MODULES ${workspacesclient}/bin/workspacesclient";
 
   includeClosures = true;
 
   targetPkgs =
-    pkgs:
-    with pkgs;
-    [
-      aws-workspaces
+    pkgs: with pkgs; [
+      workspacesclient
       custom_lsb_release
       (lib.getLib stdenv.cc.cc)
       atk
@@ -132,5 +130,5 @@ buildFHSEnv {
     mv $out/bin/${pname} $out/bin/workspacesclient
   '';
 
-  meta = aws-workspaces.meta;
+  meta = workspacesclient.meta;
 }

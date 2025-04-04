@@ -31,7 +31,7 @@
   cairo,
   fontconfig,
   pango,
-  publicsuffixList ? (import <nixpkgs> {}).publicsuffix-list,
+  publicsuffixList ? (import <nixpkgs> { }).publicsuffix-list,
   xorg,
   libfido2,
   webkitgtk_4_1,
@@ -49,13 +49,12 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "workspacesclient";
-
   version = "2024.8.5191";
 
   src = fetchurl {
     urls = [
       # Check new version at https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu/dists/jammy/main/binary-amd64/Packages
-      "https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu/dists/jammy/main/binary-amd64/${finalAttrs.pname}_${finalAttrs.version}_amd64.deb"
+      "https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu/dists/jammy/main/binary-amd64/workspacesclient_${finalAttrs.version}_amd64.deb"
       "https://d3nt0h4h6pmmc4.cloudfront.net/new_workspacesclient_jammy_amd64.deb"
     ];
     hash = "sha256-BDxMycVgWciJZe8CtElXaWVnqYDQO5NmawK10GvP2+k=";
@@ -90,12 +89,12 @@ stdenv.mkDerivation (finalAttrs: {
     description = "Client for Amazon WorkSpaces, a managed, secure Desktop-as-a-Service (DaaS) solution";
     homepage = "https://clients.amazonworkspaces.com";
     license = lib.licenses.unfree;
-    sourceProvenance = with lib.sourceTypes; [binaryNativeCode];
+    sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
     mainProgram = "workspacesclient";
     maintainers = with lib.maintainers; [
       mausch
       dylanmtaylor
     ];
-    platforms = ["x86_64-linux"]; # TODO Mac support
+    platforms = [ "x86_64-linux" ]; # TODO Mac support
   };
 })
