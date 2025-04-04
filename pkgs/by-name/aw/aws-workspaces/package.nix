@@ -16,8 +16,6 @@
 }:
 let
   workspacesclient = callPackage ./workspacesclient.nix { };
-  # To remove when https://github.com/NixOS/nixpkgs/pull/345659 has landed
-  custom_jbigkit = callPackage ./jbigkit.nix { };
 
   # Source: https://github.com/jthomaschewski/pkgbuilds/pull/3
   # Credits to https://github.com/rwolfson
@@ -61,7 +59,6 @@ buildFHSEnv {
       glib-networking
       protobufc
       cyrus_sasl
-      custom_jbigkit
     ];
 
   # provide certificates where Debian-style OpenSSL can find them
