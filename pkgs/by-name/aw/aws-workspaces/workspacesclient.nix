@@ -4,6 +4,7 @@
   fetchurl,
   dpkg,
   makeWrapper,
+  glib-networking,
 }:
 
 let
@@ -35,17 +36,24 @@ stdenv.mkDerivation (finalAttrs: {
 
     echo $src >> "$out/share/workspace_dependencies.pin"
 
-    # remove all libraries provided by the FHS
-    find $out/${dcv-path} -name lib\* ! -name libdcv\* ! -name libgioopenssl\* | xargs rm
+    runHook postInstall
+  '';
 
-    # dcvclient sets up the environment wrong. Instead wrap the binary directly with the environment variables not already provided by the FHS
+  postFixup = ''
+    # provide network support
+    wrapProgram "$out/bin/workspacesclient" \
+      --set GIO_EXTRA_MODULES ${glib-networking}/lib/gio/modules \
+
+    # dcvclient does not setup the environment correctly.
+    # Instead wrap the binary directly the correct environment paths
     mv $out/${dcv-path}/dcvclientbin $out/${dcv-path}/dcvclient
     wrapProgram $out/${dcv-path}/dcvclient \
       --suffix LD_LIBRARY_PATH : $out/${dcv-path} \
       --suffix GIO_EXTRA_MODULES : ${dcv-path}/gio/modules \
       --set DCV_SASL_PLUGIN_DIR $out/${dcv-path}/sasl2 \
 
-    runHook postInstall
+    # shrink the install by removing all vendored libraries which will be provided by Nixpkgs
+    find $out/${dcv-path} -name lib\* ! -name libdcv\* ! -name libgioopenssl\* | xargs rm
   '';
 
   meta = {

@@ -10,7 +10,6 @@
   atk,
   cairo,
   gdk-pixbuf,
-  glib-networking,
   protobufc,
   cyrus_sasl,
 }:
@@ -42,7 +41,7 @@ buildFHSEnv {
   inherit pname;
   inherit (workspacesclient) version;
 
-  runScript = "env GIO_EXTRA_MODULES=/usr/lib/gio/modules:$GIO_EXTRA_MODULES ${workspacesclient}/bin/workspacesclient";
+  runScript = "${workspacesclient}/bin/workspacesclient";
 
   includeClosures = true;
 
@@ -56,17 +55,16 @@ buildFHSEnv {
       atk
       cairo
       gdk-pixbuf
-      glib-networking
       protobufc
       cyrus_sasl
     ];
 
-  # provide certificates where Debian-style OpenSSL can find them
   extraBwrapArgs = [
+    # provide certificates where Debian-style OpenSSL can find them
     "--symlink /etc/ssl/certs/ca-certificates.crt /etc/ssl/cert.pem"
   ];
 
-  # expected executable don't match the name of this package
+  # expected executable doesn't match the name of this package
   extraInstallCommands = ''
     mv $out/bin/${pname} $out/bin/workspacesclient
   '';
